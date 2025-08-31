@@ -24,6 +24,17 @@ def main():
         if os.path.exists(d):
             shutil.rmtree(d, ignore_errors=True)
 
+    # Caminho para os assets do Whisper (ajuste conforme necessário)
+    whisper_assets = os.path.join(os.path.dirname(__file__), '..', 'src', 'whisper', 'assets')
+    if not os.path.exists(whisper_assets):
+        # Se não estiver em src/whisper/assets, use o caminho da instalação
+        import whisper
+        whisper_path = os.path.dirname(whisper.__file__)
+        whisper_assets = os.path.join(whisper_path, 'assets')
+        if not os.path.exists(whisper_assets):
+            print(f"Erro: Pasta de assets do Whisper não encontrada em {whisper_assets}. Verifique o caminho!")
+            sys.exit(1)
+
     cmd = [
         "pyinstaller",
         "src/main.py",
@@ -32,6 +43,7 @@ def main():
         "--windowed",
         "--clean",
         "--noconfirm",
+        "--add-data", f"{whisper_assets};whisper/assets",
         "--add-data=ffmpeg/bin/ffmpeg.exe;."
     ]
 

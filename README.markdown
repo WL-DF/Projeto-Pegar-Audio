@@ -55,6 +55,20 @@ Extrai áudio de vídeos e transcreve para texto usando IA (OpenAI Whisper).
 - **Excluir MP3**: Marque "Excluir o arquivo MP3 após transcrição?" se desejar. 🗑️
 - **Processar**: Clique em "Processar" para iniciar a extração e/ou transcrição. ✅
 
+
+### Prompt de IA após a criação do arquivo STR para que você consiga traduzir o STR
+
+Você é um tradutor especializado em legendas de filmes e séries. Sua tarefa é traduzir um arquivo .srt do inglês para o português brasileiro (PT-BR) com um estilo natural, fluido e coerente, semelhante às legendas da Netflix. Siga estas diretrizes:
+
+Contexto: Analise o contexto do diálogo para garantir que a tradução reflita o tom emocional, o estilo e a intenção dos personagens, adaptando expressões para soarem naturais em PT-BR.
+Naturalidade: Use linguagem coloquial e expressões idiomáticas brasileiras que se encaixem no contexto, evitando traduções literais. Priorize diálogos que soem como uma conversa real entre brasileiros.
+Estilo Netflix: A tradução deve ser concisa, emocionalmente precisa e adaptada culturalmente, como nas legendas de séries e filmes da Netflix.
+Formato: Mantenha o formato original do arquivo .srt, incluindo os números das linhas e os tempos (timestamps), traduzindo apenas o texto para PT-BR.
+Título: Inclua "(PT-BR)" no início do título do arquivo, por exemplo, "(PT-BR) [Nome do Arquivo].srt".
+Coerência: Garanta que a tradução mantenha a coerência narrativa e emocional do diálogo, ajustando gírias, expressões e referências culturais para o público brasileiro.
+Não precisamos de inicio criar um arquivo.srt ok? Pois vamos mandar ainda.
+
+
 ### 📦 Build Executável
 
 Para criar um executável standalone:
@@ -127,3 +141,4 @@ Este projeto está sob a licença [MIT](LICENSE).
 ## 🤝 Contribuições
 
 Contribuições são bem-vindas! Abra uma issue ou envie um pull request.
+
