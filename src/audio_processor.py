@@ -52,7 +52,7 @@ class AudioProcessor:
                 self.config.status_label.config(text="", foreground="blue")
             return
 
-        output_mp3, output_txt = get_output_paths(video_path, transcribe)
+        output_mp3, output_srt = get_output_paths(video_path, transcribe)
 
         # Se chegou aqui, validações ok: desabilita botão e inicia thread
         if self.config:
@@ -86,7 +86,7 @@ class AudioProcessor:
                 # transcrição
                 if self.config:
                     self.config.status_label.config(text="Transcrevendo áudio...", foreground="blue")
-                ok, msg = self.transcriber.transcribe_audio(output_mp3, output_txt)
+                ok, msg = self.transcriber.transcribe_audio(output_mp3, output_srt)
                 if not ok:
                     if self.config:
                         self.config.show_error(f"Erro na transcrição: {msg}")
@@ -103,10 +103,10 @@ class AudioProcessor:
                 # sucesso
                 if self.config:
                     mp3_size = os.path.getsize(output_mp3) if os.path.exists(output_mp3) else 0
-                    txt_size = os.path.getsize(output_txt) if os.path.exists(output_txt) else 0
+                    srt_size = os.path.getsize(output_srt) if os.path.exists(output_srt) else 0
                     self.config.update_progress(100)
                     self.config.status_label.config(text="Processamento concluído!", foreground="green")
-                    msg = f"Concluído!\nMP3: {format_file_size(mp3_size)}\nTXT: {format_file_size(txt_size)}"
+                    msg = f"Concluído!\nMP3: {format_file_size(mp3_size)}\nSRT: {format_file_size(srt_size)}"
                     if delete_mp3:
                         msg += "\n(MP3 deletado conforme solicitado)"
                     self.config.show_info(msg)

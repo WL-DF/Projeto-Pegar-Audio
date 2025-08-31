@@ -1,3 +1,4 @@
+# utils.py
 import os
 from pathlib import Path
 
@@ -5,8 +6,8 @@ def get_output_paths(video_path, transcribe):
     output_dir = os.path.dirname(video_path) or "."
     base = os.path.splitext(os.path.basename(video_path))[0]
     output_mp3 = os.path.join(output_dir, f"{base}.mp3")
-    output_txt = os.path.join(output_dir, f"{base}.txt") if transcribe else None
-    return output_mp3, output_txt
+    output_srt = os.path.join(output_dir, f"{base}.srt") if transcribe else None
+    return output_mp3, output_srt
 
 def format_file_size(size_bytes):
     if not size_bytes:
@@ -24,4 +25,3 @@ def find_ffmpeg():
     if local.exists():
         return str(local)
     return "ffmpeg"
-    

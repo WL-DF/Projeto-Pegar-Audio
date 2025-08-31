@@ -31,7 +31,7 @@ def create_gui(processor):
         file_info_label.pack(pady=2)
 
         var_transcribe = tk.BooleanVar(value=True)
-        transcribe_check = ttk.Checkbutton(main_frame, text="Transcrição para TXT", variable=var_transcribe)
+        transcribe_check = ttk.Checkbutton(main_frame, text="Transcrição para SRT", variable=var_transcribe)
         transcribe_check.pack(pady=6)
 
         var_delete_mp3 = tk.BooleanVar(value=False)

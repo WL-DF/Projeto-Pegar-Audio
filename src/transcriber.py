@@ -1,3 +1,4 @@
+# transcriber.py
 import os
 import time
 import threading
@@ -42,9 +43,17 @@ class Transcriber:
         except Exception:
             return False
 
-    def transcribe_audio(self, audio_path, output_txt, model_name="base", language=None):
+    def _seconds_to_srt_time(self, seconds):
+        """Converte segundos para formato HH:MM:SS,mmm para SRT."""
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        millis = int((seconds - int(seconds)) * 1000)
+        return f"{hours:02d}:{minutes:02d}:{secs:02d},{millis:03d}"
+
+    def transcribe_audio(self, audio_path, output_srt, model_name="base", language=None):
         """
-        Transcreve usando whisper local.
+        Transcreve usando whisper local e gera SRT com timestamps.
         Retorna (True, "") ou (False, "mensagem de erro").
         Tentativas de fallback são feitas se resultado vier vazio.
         """
@@ -73,17 +82,17 @@ class Transcriber:
                 options['language'] = language
             result = model.transcribe(audio_path, **options)
 
-            text = result.get("text", "") if isinstance(result, dict) else getattr(result, "text", "")
+            segments = result.get("segments", []) if isinstance(result, dict) else getattr(result, "segments", [])
 
-            # se texto vazio, tenta nova passagem com diferentes opções (fallback)
-            if not text or text.strip() == "":
+            # se segments vazio, tenta nova passagem com diferentes opções (fallback)
+            if not segments:
                 # tentativa 2: forçar idioma PT e aumentar beam (se suportado)
                 try:
                     fallback_opts = {'language': language or 'pt', 'task': 'transcribe'}
                     result2 = model.transcribe(audio_path, **fallback_opts)
-                    text2 = result2.get("text", "") if isinstance(result2, dict) else getattr(result2, "text", "")
-                    if text2 and text2.strip():
-                        text = text2
+                    segments2 = result2.get("segments", []) if isinstance(result2, dict) else getattr(result2, "segments", [])
+                    if segments2:
+                        segments = segments2
                 except Exception:
                     # não fatal — continuamos
                     pass
@@ -91,7 +100,7 @@ class Transcriber:
             self.is_transcribing = False
             self._report(100)
 
-            if not text or text.strip() == "":
+            if not segments:
                 # grava log de debug para inspeção
                 try:
                     dbg_path = os.path.splitext(audio_path)[0] + ".transcribe_debug.txt"
@@ -100,9 +109,14 @@ class Transcriber:
                     return False, "Transcrição vazia (resultado em debug)."
                 except Exception:
                     return False, "Transcrição vazia."
-            # grava texto
-            with open(output_txt, "w", encoding="utf-8") as f:
-                f.write(text.strip())
+
+            # gera SRT
+            with open(output_srt, "w", encoding="utf-8") as f:
+                for i, segment in enumerate(segments, start=1):
+                    start_time = self._seconds_to_srt_time(segment.get("start", 0.0))
+                    end_time = self._seconds_to_srt_time(segment.get("end", 0.0))
+                    text = segment.get("text", "").strip()
+                    f.write(f"{i}\n{start_time} --> {end_time}\n{text}\n\n")
 
             return True, ""
         except Exception as e:
