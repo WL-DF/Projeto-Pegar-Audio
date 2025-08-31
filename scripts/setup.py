@@ -8,7 +8,7 @@ def run(cmd):
 
 def main():
     print("Configurando o projeto com UV...")
-    # Compila requirements e instala
+    # Compila requirements e instala com Python 3.12
     run("uv pip compile requirements.in -o requirements.txt")
     run("uv pip install -r requirements.txt")
     print("Concluído. Ative seu ambiente criado pelo UV antes de rodar a aplicação.")
