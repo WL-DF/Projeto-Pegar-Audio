@@ -1,0 +1,27 @@
+# Ambientes virtuais
+pegaraudio-env/
+pegaraudio-env-312/
+env/
+venv/
+
+# Build e distribuição
+build/
+dist/
+*.spec
+*.pyc
+
+# Arquivos temporários
+*.mp3
+*.txt
+__pycache__/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
