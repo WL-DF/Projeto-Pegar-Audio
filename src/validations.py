@@ -2,7 +2,6 @@ import os
 import subprocess
 
 def validate_video_path(video_path):
-    """Valida se o caminho do vídeo é válido e suportado."""
     if not video_path:
         return False, "Caminho do vídeo não pode ser vazio."
     if not os.path.exists(video_path):
@@ -12,26 +11,31 @@ def validate_video_path(video_path):
     return True, ""
 
 def validate_output_dir(output_dir):
-    """Valida se o diretório de saída é acessível."""
-    if not os.path.isdir(output_dir):
+    if not output_dir:
         return False, "Diretório de saída inválido."
+    if not os.path.isdir(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except Exception:
+            return False, "Diretório de saída não existe e não pôde ser criado."
     if not os.access(output_dir, os.W_OK):
         return False, "Sem permissão para escrever no diretório."
     return True, ""
 
 def validate_ffmpeg():
-    """Valida se o FFmpeg está instalado e acessível."""
     try:
-        result = subprocess.run(['ffmpeg', '-version'], check=True, capture_output=True, text=True, timeout=10)
-        
-        # Verifica se o codec MP3 está disponível
-        if "libmp3lame" not in result.stdout:
-            return False, "FFmpeg não possui suporte a MP3 (libmp3lame)."
-            
+        result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True, timeout=10)
+        if result.returncode != 0:
+            return False, result.stderr or result.stdout or "FFmpeg retornou código não-zero."
+        if "libmp3lame" not in result.stdout and "lame" not in result.stdout:
+            # nem sempre aparece; só advertência
+            return True, "FFmpeg instalado, atenção: libmp3lame não encontrado (verifique codecs)."
         return True, ""
-    except subprocess.TimeoutExpired:
-        return False, "FFmpeg não respondeu. Pode estar corrompido ou mal instalado."
     except FileNotFoundError:
-        return False, "FFmpeg não encontrado no PATH. Instale o FFmpeg e adicione ao PATH."
+        # tenta localizar em ffmpeg/bin
+        local = os.path.join("ffmpeg", "bin", "ffmpeg.exe")
+        if os.path.exists(local):
+            return True, ""
+        return False, "FFmpeg não encontrado. Instale e coloque no PATH ou adicione ffmpeg/bin/ffmpeg.exe no projeto."
     except Exception as e:
-        return False, f"Erro ao validar FFmpeg: {str(e)}"
+        return False, f"Erro ao verificar FFmpeg: {e}"

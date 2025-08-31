@@ -1,13 +1,12 @@
 import sys
-from gui import create_gui
-from audio_processor import AudioProcessor
 from config import Config
+from audio_processor import AudioProcessor
+from gui import create_gui
 
 def main():
-    """Ponto de entrada da aplicação."""
     try:
-        config = Config()
-        processor = AudioProcessor(config)
+        cfg = Config()
+        processor = AudioProcessor(cfg)
         create_gui(processor)
     except Exception as e:
         print(f"Erro ao iniciar aplicação: {e}")

@@ -1,32 +1,27 @@
 import os
-import subprocess
+from pathlib import Path
 
 def get_output_paths(video_path, transcribe):
-    """Gera os caminhos de saída baseados no caminho do vídeo."""
-    output_dir = os.path.dirname(video_path)
-    base_name = os.path.splitext(os.path.basename(video_path))[0]
-    output_mp3 = os.path.join(output_dir, f"{base_name}.mp3")
-    output_txt = os.path.join(output_dir, f"{base_name}.txt") if transcribe else None
-    
+    output_dir = os.path.dirname(video_path) or "."
+    base = os.path.splitext(os.path.basename(video_path))[0]
+    output_mp3 = os.path.join(output_dir, f"{base}.mp3")
+    output_txt = os.path.join(output_dir, f"{base}.txt") if transcribe else None
     return output_mp3, output_txt
 
 def format_file_size(size_bytes):
-    """Formata o tamanho do arquivo para uma string legível."""
-    if size_bytes == 0:
+    if not size_bytes:
         return "0B"
-    
-    size_names = ["B", "KB", "MB", "GB"]
+    units = ["B", "KB", "MB", "GB", "TB"]
     i = 0
-    while size_bytes >= 1024 and i < len(size_names) - 1:
-        size_bytes /= 1024.0
+    size = float(size_bytes)
+    while size >= 1024 and i < len(units)-1:
+        size /= 1024.0
         i += 1
-        
-    return f"{size_bytes:.2f} {size_names[i]}"
+    return f"{size:.2f} {units[i]}"
 
-def check_ffmpeg_installation():
-    """Verifica se o FFmpeg está instalado corretamente."""
-    try:
-        result = subprocess.run(['ffmpeg', '-version'], capture_output=True, text=True)
-        return result.returncode == 0, result.stdout if result.returncode == 0 else result.stderr
-    except FileNotFoundError:
-        return False, "FFmpeg não encontrado no PATH"
+def find_ffmpeg():
+    local = Path("ffmpeg/bin/ffmpeg.exe")
+    if local.exists():
+        return str(local)
+    return "ffmpeg"
+    

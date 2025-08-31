@@ -1,6 +1,4 @@
-# Arquivo de configuração global
 class Config:
-    """Classe de configuração global para a aplicação."""
     def __init__(self):
         self.progress = None
         self.progress_label = None

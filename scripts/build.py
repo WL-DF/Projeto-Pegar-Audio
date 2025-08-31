@@ -3,30 +3,27 @@ import sys
 import os
 import shutil
 
-def run_command(cmd):
+def run(cmd):
     print(f"$ {cmd}")
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
-    for line in process.stdout:
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    for line in proc.stdout:
         print(line, end="")
-    process.wait()
-    return process.returncode
+    proc.wait()
+    return proc.returncode
 
 def main():
-    print("🔨 Build iniciado com UV + PyInstaller")
-
     light_mode = "--light" in sys.argv
+    print("Iniciando build (modo leve)" if light_mode else "Iniciando build (modo completo com whisper/torch)")
 
-    # Garante dependências atualizadas
-    print("📦 Atualizando dependências…")
-    run_command("uv pip compile requirements.in -o requirements.txt")
-    run_command("uv pip install -r requirements.txt")
+    # atualiza e instala dependências no ambiente ativo
+    run("uv pip compile requirements.in -o requirements.txt")
+    run("uv pip install -r requirements.txt")
 
-    # Limpa builds anteriores
-    for folder in ["build", "dist"]:
-        if os.path.exists(folder):
-            shutil.rmtree(folder, ignore_errors=True)
+    # limpa
+    for d in ["build", "dist"]:
+        if os.path.exists(d):
+            shutil.rmtree(d, ignore_errors=True)
 
-    # Comando base do PyInstaller
     cmd = [
         "pyinstaller",
         "src/main.py",
@@ -38,29 +35,22 @@ def main():
         "--add-data=ffmpeg/bin/ffmpeg.exe;."
     ]
 
-    # Hidden imports (necessários p/ torch/numpy/whisper)
-    hidden_imports = ["whisper", "ttkthemes", "PIL", "torch", "torchaudio", "numpy"]
-    for imp in hidden_imports:
-        cmd.append(f"--hidden-import={imp}")
+    hidden = ["ttkthemes", "PIL", "numpy", "requests"]
+    for h in hidden:
+        cmd.append(f"--hidden-import={h}")
 
-    # Ícone (se existir)
-    if os.path.exists("icon.ico"):
-        cmd.append("--icon=icon.ico")
-
-    # Light mode → exclui torch/whisper
     if light_mode:
-        print("⚡ Light mode ativo: excluindo whisper/torch do build")
+        # light: não inclui whisper/torch
+        cmd.append("--exclude-module=whisper")
         cmd.append("--exclude-module=torch")
         cmd.append("--exclude-module=torchaudio")
-        cmd.append("--exclude-module=whisper")
 
-    return_code = run_command(" ".join(cmd))
-
+    # executa
+    return_code = run(" ".join(cmd))
     if return_code == 0:
-        print("✅ Build concluído com sucesso! Executável em dist/Pegar_Audio.exe")
+        print("Build finalizado. Executável em dist/Pegar_Audio.exe")
     else:
-        print("❌ Build falhou.")
-
+        print("Build falhou. Veja logs acima.")
     return return_code
 
 if __name__ == "__main__":
