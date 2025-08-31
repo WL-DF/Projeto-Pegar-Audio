@@ -1,3 +1,4 @@
+# gui.py
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from ttkthemes import ThemedTk
@@ -33,10 +34,14 @@ def create_gui(processor):
         transcribe_check = ttk.Checkbutton(main_frame, text="Transcrição para TXT", variable=var_transcribe)
         transcribe_check.pack(pady=6)
 
+        var_delete_mp3 = tk.BooleanVar(value=False)
+        delete_mp3_check = ttk.Checkbutton(main_frame, text="Excluir o arquivo MP3 após transcrição?", variable=var_delete_mp3)
+        delete_mp3_check.pack(pady=6)
+
         button_frame = ttk.Frame(main_frame)
         button_frame.pack(pady=10)
         process_button = ttk.Button(button_frame, text="Processar", width=16,
-                                    command=lambda: on_process_click(processor, entry_video.get(), var_transcribe.get(), process_button, status_label))
+                                    command=lambda: on_process_click(processor, entry_video.get(), var_transcribe.get(), var_delete_mp3.get(), process_button, status_label))
         process_button.pack()
 
         progress_frame = ttk.Frame(main_frame)
@@ -78,11 +83,11 @@ def select_video(entry, info_label):
         except:
             info_label.config(text=f"{os.path.basename(file_path)}")
 
-def on_process_click(processor, video_path, transcribe, button, status_label):
-    button.config(state="disabled")
+def on_process_click(processor, video_path, transcribe, delete_mp3, button, status_label):
+    # Não desabilita o botão aqui; vamos validar primeiro no process_video
     status_label.config(text="Preparando...", foreground="blue")
     # slight delay to let UI update
-    button.after(120, lambda: processor.process_video(video_path, transcribe))
+    button.after(120, lambda: processor.process_video(video_path, transcribe, delete_mp3))
 
 def show_error_message(msg, status_label):
     status_label.config(text=f"Erro: {msg}", foreground="red")
